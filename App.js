@@ -5,8 +5,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Tabs from "./components/Tabs";
 
-const Tab = createBottomTabNavigator();
-
 SplashScreen.preventAutoHideAsync()
   .then((result) =>
     console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`)
@@ -27,11 +25,4 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+const styles = StyleSheet.create({});
