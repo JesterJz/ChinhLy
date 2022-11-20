@@ -10,11 +10,8 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-export default function StopWatch() {
-  const [isTimerStart, setIsTimerStart] = useState(false);
+const StopWatch = () => {
   const [isStopwatchStart, setIsStopwatchStart] = useState(false);
-  const [timerDuration, setTimerDuration] = useState(90000);
-  const [resetTimer, setResetTimer] = useState(false);
   const [resetStopwatch, setResetStopwatch] = useState(false);
   const [timeCurrent, setTimeCurrent] = useState();
   const [timeLap, setTimeLap] = useState([]);
@@ -91,7 +88,7 @@ export default function StopWatch() {
       </View>
     </SafeAreaView>
   );
-}
+};
 const CENTER = {
   justifyContent: "center",
   alignItems: "center",
@@ -170,3 +167,4 @@ const options = {
     fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : null,
   },
 };
+export default StopWatch;

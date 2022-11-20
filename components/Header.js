@@ -1,15 +1,17 @@
-import * as React from 'react';
-import { Appbar } from 'react-native-paper';
+import React from 'react'
+import { StyleSheet } from 'react-native'
+import { Text } from 'react-native-paper'
+import { theme } from '../core/theme'
 
-// Heading of Fedd page
+export default function Header(props) {
+  return <Text style={styles.header} {...props} />
+}
 
-const MyHeader = () => {
-
-  return (
-    <Appbar.Header style={{backgroundColor:'black'}}>
-      <Appbar.Content title="Stopwatch" style={{ alignItems: 'center'}}/>
-    </Appbar.Header>
-  );
-};
-
-export default MyHeader;
+const styles = StyleSheet.create({
+  header: {
+    fontSize: 21,
+    color: theme.colors.primary,
+    fontWeight: 'bold',
+    paddingVertical: 12,
+  },
+})
