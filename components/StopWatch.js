@@ -1,114 +1,29 @@
-// import React, { useState, useRef, useCallback } from "react";
-// import { StyleSheet, SafeAreaView, Text, View, Platform } from "react-native";
-// import { StatusBar } from "expo-status-bar";
-// import Constants from "expo-constants";
-// import Result from "./Result";
-// import Control from "./Control";
-// import { displayTime } from "./util";
-// import MyHeader from "./Header";
-
-// export default function StopWatch() {
-//   const [time, setTime] = useState(0);
-//   const [isRunning, setRunning] = useState(false);
-//   const [results, setResults] = useState([]);
-//   const timer = useRef(null);
-
-//   // https://reactjs.org/docs/hooks-reference.html#usecallback
-//   const handleLeftButtonPress = useCallback(() => {
-//     console.log("handleLeftButtonPress", isRunning, time);
-//     if (isRunning) {
-//       setResults((previousResults) => [time, ...previousResults]);
-//     } else {
-//       setResults([]);
-//       setTime(0);
-//     }
-//   }, [isRunning, time]);
-
-//   const handleRightButtonPress = useCallback(() => {
-//     if (!isRunning) {
-//       const interval = setInterval(() => {
-//         setTime((previousTime) => previousTime + 1);
-//       }, 1);
-
-//       timer.current = interval;
-//     } else {
-//       clearInterval(timer.current);
-//     }
-
-//     setRunning((previousState) => !previousState);
-//   }, [isRunning]);
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <MyHeader />
-//       <StatusBar style="light" />
-
-//       <View style={styles.display}>
-//         <Text style={styles.displayText}>{displayTime(time)}</Text>
-//       </View>
-
-//       <View style={styles.control}>
-//         <Control
-//           isRunning={isRunning}
-//           handleLeftButtonPress={handleLeftButtonPress}
-//           handleRightButtonPress={handleRightButtonPress}
-//         />
-//       </View>
-
-//       <View style={styles.result}>
-//         <Result results={results} />
-//       </View>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "black",
-//     paddingTop: Constants.statusBarHeight,
-//   },
-//   display: {
-//     flex: 3 / 5,
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   displayText: {
-//     color: "#fff",
-//     fontSize: 70,
-//     fontWeight: "200",
-//     fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : null,
-//   },
-//   control: {
-//     height: 70,
-//     flexDirection: "row",
-//     justifyContent: "space-around",
-//   },
-//   result: { flex: 2 / 5 },
-// });
 import React, { useState } from "react";
 import { Stopwatch, Timer } from "react-native-stopwatch-timer";
+import { displayTime } from "./util";
+
 import {
   SafeAreaView,
   StyleSheet,
   Text,
   View,
-  TouchableHighlight,
+  TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { Button } from "react-native-paper";
-const App = () => {
+export default function StopWatch() {
   const [isTimerStart, setIsTimerStart] = useState(false);
   const [isStopwatchStart, setIsStopwatchStart] = useState(false);
   const [timerDuration, setTimerDuration] = useState(90000);
   const [resetTimer, setResetTimer] = useState(false);
   const [resetStopwatch, setResetStopwatch] = useState(false);
   const [timeCurrent, setTimeCurrent] = useState();
-  const [time1, setTime1] = useState();
-  const getTime1 = (time) => {
-    setTime1(time);
+  const [timeLap, setTimeLap] = useState([]);
+
+  const getTimeCurrent = (time) => {
+    setTimeCurrent(time);
   };
-  const getTime = (time1) => {
-    setTimeCurrent(time1);
+  const getTimeLap = (t) => {
+    setTimeLap((previousResults) => [t, ...previousResults]);
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -116,85 +31,76 @@ const App = () => {
         <View style={styles.sectionStyle}>
           <Stopwatch
             laps
-            msecs
             start={isStopwatchStart}
             reset={resetStopwatch}
             options={options}
             getTime={(time) => {
-              getTime1(time);
+              getTimeCurrent(time);
             }}
           />
-          <TouchableHighlight
+        </View>
+        <View style={styles.control}>
+          <TouchableOpacity
+            style={[
+              styles.controlButtonBorder,
+              { backgroundColor: isStopwatchStart ? "#363636" : "#000" },
+            ]}
             onPress={() => {
+              getTimeLap(timeCurrent);
               setIsStopwatchStart(!isStopwatchStart);
-              setResetStopwatch(false);
-            }}
-          >
-            <Text style={styles.buttonText}>
-              {!isStopwatchStart ? "START" : "STOP"}
-            </Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            onPress={() => {
-              setIsStopwatchStart(false);
               setResetStopwatch(true);
             }}
           >
-            <Text style={styles.buttonText}>RESET</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
+            <View style={styles.controlButton}>
+              <Text style={{ color: isStopwatchStart ? "#fff" : "#9d9ca2" }}>
+                {!isStopwatchStart ? "Reset" : "Lap"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.controlButtonBorder,
+              { backgroundColor: isStopwatchStart ? "#340e0d" : "#0a2a12" },
+            ]}
             onPress={() => {
-              getTime(time1);
+              setResetStopwatch(false);
+              setIsStopwatchStart(!isStopwatchStart);
             }}
           >
-            <Text style={styles.buttonText}>Laps</Text>
-          </TouchableHighlight>
-          <Text style={styles.buttonText}>{timeCurrent}</Text>
+            <View style={styles.controlButton}>
+              <Text style={{ color: isStopwatchStart ? "#ea4c49" : "#37d05c" }}>
+                {!isStopwatchStart ? "Start" : "Stop"}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
-        {/* <View style={styles.sectionStyle}> */}
-        {/* <Timer
-            totalDuration={timerDuration}
-            msecs
-            start={isTimerStart}
-            reset={resetTimer}
-            options={options}
-            handleFinish={() => {
-              alert("Custom Completion Function");
-            }}
-            getTime={(time) => {
-              console.log(time);
-            }}
-          /> */}
-        {/* <TouchableHighlight
-            onPress={() => {
-              setIsTimerStart(!isTimerStart);
-              setResetTimer(false);
-            }}
-          >
-            <Text style={styles.buttonText}>
-              {!isTimerStart ? "START" : "STOP"}
-            </Text>
-          </TouchableHighlight> */}
-        {/* <TouchableHighlight
-            onPress={() => {
-              setIsTimerStart(false);
-              setResetTimer(true);
-            }}
-          >
-            <Text style={styles.buttonText}>RESET</Text>
-          </TouchableHighlight> */}
-        {/* </View> */}
+        <View style={styles.result}>
+          <ScrollView>
+            <View style={styles.resultItem} />
+
+            {timeLap.map((item, index) => (
+              <View key={index} style={styles.resultItem}>
+                <Text style={styles.resultItemText}>
+                  Lap {timeLap.length - index}
+                </Text>
+                <Text style={styles.resultItemText}>{displayTime(item)} s</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       </View>
     </SafeAreaView>
   );
+}
+const CENTER = {
+  justifyContent: "center",
+  alignItems: "center",
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#fff",
   },
   title: {
     textAlign: "center",
@@ -203,29 +109,64 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   sectionStyle: {
+    flex: 3 / 5,
     marginTop: 32,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
+    ...CENTER,
     fontSize: 20,
     marginTop: 10,
   },
+  display: {
+    flex: 3 / 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  control: {
+    height: 70,
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  controlButtonBorder: {
+    ...CENTER,
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+  },
+  controlButton: {
+    ...CENTER,
+    width: 95,
+    height: 95,
+    borderRadius: 95,
+    borderColor: "#000",
+    borderWidth: 1,
+  },
+  result: { flex: 2 / 5 },
+  resultItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#313131",
+    height: 50,
+    paddingHorizontal: 15,
+  },
+  resultItemText: { color: "#000" },
 });
 
 const options = {
   container: {
-    backgroundColor: "#FF0000",
-    padding: 5,
-    borderRadius: 5,
-    width: 200,
+    flex: 3 / 5,
+    backgroundColor: "#fff",
+    justifyContent: "center",
     alignItems: "center",
   },
   text: {
-    fontSize: 25,
-    color: "#FFF",
-    marginLeft: 7,
+    color: "#000",
+    fontSize: 70,
+    fontWeight: "200",
+    fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : null,
   },
 };
-
-export default App;
