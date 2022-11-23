@@ -7,7 +7,7 @@ import Tabs from "./components/Tabs";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
-// import Dashboard from "./screens/Dashboard";
+import InputName from "./screens/InputName";
 import StartScreen from "./screens/StartScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -34,11 +34,11 @@ export default function App() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="StartScreen" component={StartScreen} />
+        <Stack.Screen name="StartScreen" component={InputName} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+        <Stack.Screen name="InputName" component={InputName} />
         <Stack.Screen name="Tabs" component={Tabs} />
-        {/* <Stack.Screen name="Dashboard" component={Dashboard} /> */}
         <Stack.Screen
           name="ResetPasswordScreen"
           component={ResetPasswordScreen}

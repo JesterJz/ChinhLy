@@ -10,85 +10,120 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-const StopWatch = () => {
-  const [isStopwatchStart, setIsStopwatchStart] = useState(false);
-  const [resetStopwatch, setResetStopwatch] = useState(false);
-  const [timeCurrent, setTimeCurrent] = useState();
-  const [timeLap, setTimeLap] = useState([]);
+// const [isStopwatchStart, setIsStopwatchStart] = useState(false);
+// const [resetStopwatch, setResetStopwatch] = useState(false);
+// const [timeCurrent, setTimeCurrent] = useState();
+// const [timeLap, setTimeLap] = useState([]);
 
-  const getTimeCurrent = (time) => {
-    setTimeCurrent(time);
-  };
-  const getTimeLap = (t) => {
-    setTimeLap((previousResults) => [t, ...previousResults]);
-  };
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <View style={styles.sectionStyle}>
-          <Stopwatch
-            laps
-            start={isStopwatchStart}
-            reset={resetStopwatch}
-            options={options}
-            getTime={(time) => {
-              getTimeCurrent(time);
-            }}
-          />
-        </View>
-        <View style={styles.control}>
-          <TouchableOpacity
-            style={[
-              styles.controlButtonBorder,
-              { backgroundColor: isStopwatchStart ? "#363636" : "#000" },
-            ]}
-            onPress={() => {
-              getTimeLap(timeCurrent);
-              setIsStopwatchStart(!isStopwatchStart);
-              setResetStopwatch(true);
-            }}
-          >
-            <View style={styles.controlButton}>
-              <Text style={{ color: isStopwatchStart ? "#fff" : "#9d9ca2" }}>
-                {!isStopwatchStart ? "Reset" : "Lap"}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.controlButtonBorder,
-              { backgroundColor: isStopwatchStart ? "#340e0d" : "#0a2a12" },
-            ]}
-            onPress={() => {
-              setResetStopwatch(false);
-              setIsStopwatchStart(!isStopwatchStart);
-            }}
-          >
-            <View style={styles.controlButton}>
-              <Text style={{ color: isStopwatchStart ? "#ea4c49" : "#37d05c" }}>
-                {!isStopwatchStart ? "Start" : "Stop"}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.result}>
-          <ScrollView>
-            <View style={styles.resultItem} />
+export default class StopWatch extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isStopwatchStart: false,
+      resetStopwatch: false,
+      timeCurrent: "",
+      timeLap: [],
+    };
+  }
+  toggle(time) {
+    this.state.timeCurrent = time;
+  }
 
-            {timeLap.map((item, index) => (
-              <View key={index} style={styles.resultItem}>
-                <Text style={styles.resultItemText}>
-                  Lap {timeLap.length - index}
+  getTimeLap(t) {
+    this.setState((prevState) => ({
+      timeLap: [...prevState.timeLap, t],
+    }));
+    console.log(this.state.timeLap);
+  }
+
+  render() {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+          <Text style={styles.text}>Stopwatch</Text>
+          <View style={styles.sectionStyle}>
+            <Stopwatch
+              laps
+              start={this.state.isStopwatchStart}
+              reset={this.state.resetStopwatch}
+              options={options}
+              getTime={(time) => this.toggle(time)}
+            />
+          </View>
+          <View style={styles.control}>
+            <TouchableOpacity
+              style={[
+                styles.controlButtonBorder,
+                {
+                  backgroundColor: this.state.isStopwatchStart
+                    ? "#363636"
+                    : "#000",
+                },
+              ]}
+              onPress={() => {
+                this.getTimeLap(this.state.timeCurrent);
+                this.setState({
+                  isStopwatchStart: !this.state.isStopwatchStart,
+                  resetStopwatch: true,
+                });
+              }}
+            >
+              <View style={styles.controlButton}>
+                <Text
+                  style={{
+                    color: this.state.isStopwatchStart ? "#fff" : "#9d9ca2",
+                  }}
+                >
+                  {!this.state.isStopwatchStart ? "Reset" : "Lap"}
                 </Text>
-                <Text style={styles.resultItemText}>{displayTime(item)} s</Text>
               </View>
-            ))}
-          </ScrollView>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.controlButtonBorder,
+                {
+                  backgroundColor: this.state.isStopwatchStart
+                    ? "#340e0d"
+                    : "#0a2a12",
+                },
+              ]}
+              onPress={() => {
+                this.setState({
+                  isStopwatchStart: !this.state.isStopwatchStart,
+                  resetStopwatch: false,
+                });
+              }}
+            >
+              <View style={styles.controlButton}>
+                <Text
+                  style={{
+                    color: this.state.isStopwatchStart ? "#ea4c49" : "#37d05c",
+                  }}
+                >
+                  {!this.state.isStopwatchStart ? "Start" : "Stop"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.result}>
+            <ScrollView>
+              <View style={styles.resultItem} />
+
+              {this.state.timeLap.map((item, index) => (
+                <View key={index} style={styles.resultItem}>
+                  <Text style={styles.resultItemText}>Lap {index + 1}</Text>
+                  <Text style={styles.resultItemText}>
+                    {displayTime(item)} s
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
-  );
-};
+      </SafeAreaView>
+    );
+  }
+}
 const CENTER = {
   justifyContent: "center",
   alignItems: "center",
@@ -122,7 +157,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   control: {
-    height: 70,
     flexDirection: "row",
     justifyContent: "space-around",
   },
@@ -162,9 +196,7 @@ const options = {
   },
   text: {
     color: "#000",
-    fontSize: 70,
+    fontSize: 40,
     fontWeight: "200",
-    fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : null,
   },
 };
-export default StopWatch;
