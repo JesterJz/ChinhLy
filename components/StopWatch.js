@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Stopwatch, Timer } from "react-native-stopwatch-timer";
 import { displayTime } from "./util";
+import { ChinhLy } from "./ChinhLy";
 
 import {
   SafeAreaView,
@@ -10,14 +11,12 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-// const [isStopwatchStart, setIsStopwatchStart] = useState(false);
-// const [resetStopwatch, setResetStopwatch] = useState(false);
-// const [timeCurrent, setTimeCurrent] = useState();
-// const [timeLap, setTimeLap] = useState([]);
+import { Button } from "react-native-paper";
 
 export default class StopWatch extends React.Component {
   constructor(props) {
     super(props);
+    console.log(props);
     this.state = {
       isStopwatchStart: false,
       resetStopwatch: false,
@@ -39,8 +38,26 @@ export default class StopWatch extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={{ flexDirection: "row", marginTop: 40 }}>
+          <Button
+            style={{ flex: 1, justifyContent: "flex-start" }}
+            onPress={() => {}}
+          >
+            Export CSV
+          </Button>
+          <Button
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+            }}
+            onPress={() => {
+              console.log(ChinhLy(this.state.timeLap));
+            }}
+          >
+            Bắt đầu chỉnh lý
+          </Button>
+        </View>
         <View style={styles.container}>
-          <Text style={styles.text}>Stopwatch</Text>
           <View style={styles.sectionStyle}>
             <Stopwatch
               laps
@@ -159,6 +176,7 @@ const styles = StyleSheet.create({
   control: {
     flexDirection: "row",
     justifyContent: "space-around",
+    marginBottom: 20,
   },
   controlButtonBorder: {
     ...CENTER,
