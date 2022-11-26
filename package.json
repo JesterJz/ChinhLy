@@ -27,7 +27,7 @@
     "minutes-seconds-milliseconds": "^1.0.3",
     "patch-package": "^6.5.0",
     "react": "18.1.0",
-    "react-codemod": "^4.0.1",
+    "react-codemod": "^5.4.3",
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
     "react-native-app-link": "^1.0.1",
