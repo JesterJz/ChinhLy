@@ -16,7 +16,6 @@ import { Button } from "react-native-paper";
 export default class StopWatch extends React.Component {
   constructor(props) {
     super(props);
-    console.log(props);
     this.state = {
       isStopwatchStart: false,
       resetStopwatch: false,
@@ -32,7 +31,6 @@ export default class StopWatch extends React.Component {
     this.setState((prevState) => ({
       timeLap: [...prevState.timeLap, t],
     }));
-    console.log(this.state.timeLap);
   }
 
   render() {
@@ -51,7 +49,7 @@ export default class StopWatch extends React.Component {
               justifyContent: "flex-end",
             }}
             onPress={() => {
-              console.log(ChinhLy(this.state.timeLap));
+              ChinhLy(this.state.timeLap);
             }}
           >
             Bắt đầu chỉnh lý
