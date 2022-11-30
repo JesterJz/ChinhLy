@@ -6,12 +6,15 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import BackButton from "../components/BackButton";
+import Tabs from "../components/Tabs";
 
-export default function LoginScreen({ navigation }) {
+export default function InputName({ navigation }) {
   const [nameJob, onChangeNameJob] = useState("");
-  const [numEleJob, onChangeNumEleJob] = useState();
-  const [estTime, onChangeEst] = useState();
-  const [period, onChangePeriod] = useState(0);
+  const [numEleJob, onChangeNumEleJob] = useState(0);
+
+  global.nameJob = nameJob;
+  global.numEleJob = numEleJob;
+
   return (
     <Background>
       <BackButton goBack={navigation.goBack} />
@@ -26,26 +29,14 @@ export default function LoginScreen({ navigation }) {
       />
       <TextInput
         label="Số phần tử công việc"
-        returnKeyType="next"
         onChangeText={onChangeNumEleJob}
         value={numEleJob}
-        autoCapitalize="none"
       />
-      <TextInput
-        label="Thời gian ước tính"
-        returnKeyType="next"
-        onChangeText={onChangeEst}
-        value={estTime}
-        autoCapitalize="none"
-      />
-      <TextInput
-        label="Số chu kỳ công việc"
-        returnKeyType="next"
-        onChangeText={onChangePeriod}
-        value={period}
-        autoCapitalize="none"
-      />
-      <Button mode="contained" onPress={() => navigation.navigate("Tabs")}>
+      <Button
+        mode="contained"
+        onPress={() => navigation.navigate("InputInfoObserve")}
+      >
+        {/* <Button mode="contained" onPress={Tabs()}> */}
         Bắt đầu
       </Button>
     </Background>

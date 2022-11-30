@@ -2,6 +2,7 @@ import React from "react";
 import { Stopwatch, Timer } from "react-native-stopwatch-timer";
 import { displayTime } from "./util";
 import { ChinhLy } from "./ChinhLy";
+import { ExportToCsv } from "export-to-csv";
 
 import {
   SafeAreaView,
@@ -10,8 +11,15 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
-import { Button } from "react-native-paper";
+import {
+  Button,
+  Paragraph,
+  Dialog,
+  Portal,
+  Provider,
+} from "react-native-paper";
 
 export default class StopWatch extends React.Component {
   constructor(props) {
@@ -21,6 +29,9 @@ export default class StopWatch extends React.Component {
       resetStopwatch: false,
       timeCurrent: "",
       timeLap: [],
+      timeLapTemp: {},
+      timeLapAll: {},
+      numObserveCurrent: 1,
     };
   }
   toggle(time) {
@@ -32,27 +43,72 @@ export default class StopWatch extends React.Component {
       timeLap: [...prevState.timeLap, t],
     }));
   }
+  checkSoChuKyMin(timeLap, timeCurrent) {
+    if (timeLap.length < global.soChuKyMin) {
+      alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
+    } else {
+      this.state.timeLapTemp[timeCurrent] = this.state.timeLap;
+      this.state.timeLapAll = Object.assign(
+        this.state.timeLapTemp,
+        this.state.timeLapAll
+      );
+      console.log(this.state.timeLapAll);
+      this.checkSoLanQuanSat(global.numObserve);
+    }
+  }
+  checkSoLanQuanSat(numObserve) {
+    if (numObserve == this.state.numObserveCurrent) {
+      Alert.alert(
+        "Kết quả",
+        ChinhLy(this.state.timeLapAll, global.numEleJob, global.numObserve),
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Export CSV", onPress: () => console.log("OK Pressed") },
+        ]
+      );
+      // this.exportCSV();
+    } else {
+      this.setState({
+        numObserveCurrent: this.state.numObserveCurrent + 1,
+        timeLap: [],
+      });
+    }
+  }
+  checkTitle() {
+    if (this.state.numObserveCurrent < global.numObserve) {
+      return "Kết thúc quan sát lần: " + this.state.numObserveCurrent;
+    } else if (this.state.numObserveCurrent == global.numObserve) {
+      return "Kết thúc quan sát lần cuối";
+    }
+  }
 
   render() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ flexDirection: "row", marginTop: 40 }}>
-          <Button
+          {/* <Button
             style={{ flex: 1, justifyContent: "flex-start" }}
             onPress={() => {}}
           >
             Export CSV
-          </Button>
+          </Button> */}
           <Button
             style={{
               flex: 1,
               justifyContent: "flex-end",
             }}
             onPress={() => {
-              ChinhLy(this.state.timeLap);
+              this.checkSoChuKyMin(
+                this.state.timeLap,
+                this.state.numObserveCurrent
+              );
             }}
           >
-            Bắt đầu chỉnh lý
+            {this.checkTitle()}
           </Button>
         </View>
         <View style={styles.container}>

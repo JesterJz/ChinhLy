@@ -10,6 +10,7 @@ import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import InputName from "./screens/InputName";
 import StartScreen from "./screens/StartScreen";
 import { createStackNavigator } from "@react-navigation/stack";
+import InputInfoObserve from "./screens/InputInfoObserve";
 
 const Stack = createStackNavigator();
 
@@ -34,10 +35,11 @@ export default function App() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="StartScreen" component={Tabs} />
+        <Stack.Screen name="StartScreen" component={InputName} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="InputName" component={InputName} />
+        <Stack.Screen name="InputInfoObserve" component={InputInfoObserve} />
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen
           name="ResetPasswordScreen"
