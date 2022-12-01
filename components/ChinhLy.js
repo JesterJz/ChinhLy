@@ -31,10 +31,10 @@ function getLimMax(originArray, soChuKy) {
   if (aMax >= max) {
     cloneArray.push(max);
     cloneArray.sort();
-    return cloneArray;
+    return [cloneArray, true];
   } else {
     if (cloneArray.length < soChuKy * (2 / 3)) {
-      return [];
+      return [cloneArray, false]; // tra ve mang va trang thai hien tai de thu thap them
     } else {
       getLimMax(cloneArray, soChuKy);
     }
@@ -51,9 +51,7 @@ function getLimMin(originArray, soChuKy) {
     return accumulator + value;
   }, 0);
   let atb2 = sum / (cloneArray.length - 1);
-  console.log("atb2", atb2);
   let lengthArray = cloneArray.length;
-  console.log("lengthArray", lengthArray);
   lengthArray == 4
     ? (k = 1.4)
     : lengthArray == 5 || lengthArray == 6
@@ -69,26 +67,16 @@ function getLimMin(originArray, soChuKy) {
     : _.range(31, 36, 1)
     ? (k = 0.7)
     : (k = 0.6);
-  console.log("k", k);
-  console.log(max, min);
   let aMin = atb2 - k * (max - min);
-  console.log("aMin", aMin);
   if (aMin <= min) {
     cloneArray.push(min);
     cloneArray.sort();
-    console.log("lim min", cloneArray);
-    return cloneArray;
+    return [cloneArray, true];
   } else {
-    console.log("cloneArray else", cloneArray);
-
     if (cloneArray.length < soChuKy * (2 / 3)) {
-      console.log("cloneArray 2/3", cloneArray);
-
-      return "cloneArray";
-    } else {
-      console.log("lim min 123", cloneArray);
-      getLimMin(cloneArray, soChuKy);
+      return [false, cloneArray]; // tra ve mang va trang thai hien tai de thu thap them
     }
+    getLimMin(cloneArray, soChuKy);
   }
 }
 
@@ -108,38 +96,33 @@ function getEtt(originArray) {
 
 function calculateHaveT(result, soChuKy, soPhanTu) {
   let stabilityCoe = 0;
-  let m = result.length;
 
   let aMax = Math.max(...result);
   let aMin = Math.min(...result);
-  console.log("aMax", aMax);
-  console.log("aMin", aMin);
 
   // tinh K
-  stabilityCoe = aMax / aMin;
-  console.log("stabilityCoe", stabilityCoe);
+  aMin == 0 ? (stabilityCoe = 0) : (stabilityCoe = aMax / aMin);
+
   if (stabilityCoe <= 1.3) {
     const sum = result.reduce((accumulator, value) => {
       return accumulator + value;
     }, 0);
-    return sum;
-  } else if (1.3 < stabilityCoe <= 2) {
-    let limMax = getLimMax(result, soChuKy);
-    console.log("lim max log", limMax);
 
-    if (limMax.length == 0) {
-      //call screen thu thap
-      console.log("call screen thu thap");
+    return [sum, result];
+  } else if (1.3 < stabilityCoe <= 2) {
+    let [limMax, statusMax] = getLimMax(result, soChuKy);
+
+    if (statusMax == false) {
+      return [0, limMax];
     } else {
-      let limMin = getLimMin(limMax, soChuKy);
-      if (limMin == false) {
-        //call screen thu thap
-        console.log("call screen thu thap");
+      let [limMin, statusMin] = getLimMin(limMax, soChuKy);
+      if (statusMin == false) {
+        return [0, limMin];
       } else {
         const sum = limMin.reduce((accumulator, value) => {
           return accumulator + value;
         }, 0);
-        return [sum, limMin.length];
+        return [sum, limMin];
       }
     }
   } else if (2 < stabilityCoe) {
@@ -151,7 +134,7 @@ function calculateHaveT(result, soChuKy, soPhanTu) {
       const sum = result.reduce((accumulator, value) => {
         return accumulator + value;
       }, 0);
-      return sum;
+      return [sum, result];
     } else if (eTTNum >= e) {
       const K1up = result.reduce((accumulator, value) => {
         return accumulator + (value - aMin);
@@ -173,29 +156,29 @@ function calculateHaveT(result, soChuKy, soPhanTu) {
       } else {
         result.splice(cloneArray.indexOf(aMin), 1);
       }
-      calculateHaveT(result);
+      calculateHaveT(result, soChuKy, soPhanTu);
     }
   }
 }
-export const ChinhLy = (listInput, soPhanTu, soLanQuanSat) => {
-  //tach data thu thap cho tung chu ky
-  //kiem tra xem so luong data thu thap du co bang so chu ky hay khong
+export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
   let chuKy = [];
-  let input = [];
-  let resultAllQuanSat = 0;
-  for (const key in listInput) {
-    if (Object.hasOwnProperty.call(listInput, key)) {
-      let soChuKy = listInput[key].length;
-      listInput[key].forEach((element) => {
-        element = displayTime(element);
-        chuKy.push(element);
-      });
-      chuKy.sort();
-      let [ResultChuKy, t] = calculateHaveT(chuKy, soChuKy, soPhanTu);
-      let resultQuanSat = ResultChuKy / t;
-      resultAllQuanSat += resultQuanSat;
-    }
+  let resultQuanSat = 0;
+  let soChuKy = timeInput.length;
+
+  timeInput.forEach((element) => {
+    element = displayTime(element);
+    chuKy.push(element);
+  });
+
+  chuKy.sort();
+
+  let [sumAfterChinhLy, arrayResult] = calculateHaveT(chuKy, soChuKy, soPhanTu);
+
+  if (sumAfterChinhLy == 0) {
+    return [0, arrayResult, sumAfterChinhLy];
+  } else {
+    sumAmountNumber = arrayResult.length;
+    resultQuanSat = sumAmountNumber / sumAfterChinhLy;
+    return [resultQuanSat, arrayResult, sumAfterChinhLy];
   }
-  let HaoPhi = soLanQuanSat / resultAllQuanSat;
-  return HaoPhi;
 };

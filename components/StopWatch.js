@@ -43,35 +43,40 @@ export default class StopWatch extends React.Component {
       timeLap: [...prevState.timeLap, t],
     }));
   }
-  checkSoChuKyMin(timeLap, timeCurrent) {
+  chinhLy(timeLap, timeCurrent, soLanQuanSat) {
     if (timeLap.length < global.soChuKyMin) {
       alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
     } else {
-      this.state.timeLapTemp[timeCurrent] = this.state.timeLap;
-      this.state.timeLapAll = Object.assign(
-        this.state.timeLapTemp,
-        this.state.timeLapAll
+      let [resultQuanSat, arrayResult, sumArrayResult] = ChinhLy(
+        this.state.timeLap,
+        global.numEleJob,
+        global.numObserve
       );
-      console.log(this.state.timeLapAll);
-      this.checkSoLanQuanSat(global.numObserve);
-    }
-  }
-  checkSoLanQuanSat(numObserve) {
-    if (numObserve == this.state.numObserveCurrent) {
-      Alert.alert(
-        "Kết quả",
-        ChinhLy(this.state.timeLapAll, global.numEleJob, global.numObserve),
-        [
+      if (resultQuanSat != 0) {
+        global.resultAllQuanSat += resultQuanSat;
+        global.dataExportCSV = Object.assign(
           {
-            text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel",
+            name: "Quan sat lan " + this.state.numObserveCurrent,
+            arrayResult: arrayResult,
+            sumArrayResult: sumArrayResult,
           },
+          global.dataExportCSV
+        );
+      } else {
+        alert("Vui lòng thu thập thêm dữ liệu");
+        //convert laij thanh giay
+        resultCovertTime = this.covertTime(arrayResult);
+        this.setState({
+          timeLap: resultCovertTime,
+        });
+      }
+      if (timeCurrent == global.numObserve) {
+        let HaoPhi = soLanQuanSat / global.resultAllQuanSat;
+        Alert.alert("Kết quả", "Hao phí là: " + HaoPhi.toFixed(1) + " s", [
           { text: "Export CSV", onPress: () => console.log("OK Pressed") },
-        ]
-      );
-      // this.exportCSV();
-    } else {
+        ]);
+        // this.exportCSV(global.dataExportCSV);
+      }
       this.setState({
         numObserveCurrent: this.state.numObserveCurrent + 1,
         timeLap: [],
@@ -82,30 +87,31 @@ export default class StopWatch extends React.Component {
     if (this.state.numObserveCurrent < global.numObserve) {
       return "Kết thúc quan sát lần: " + this.state.numObserveCurrent;
     } else if (this.state.numObserveCurrent == global.numObserve) {
-      return "Kết thúc quan sát lần cuối";
+      return "Bắt đầu chỉnh lý";
     }
+  }
+  covertTime(arrayResult) {
+    for (const key in arrayResult) {
+      if (Object.hasOwnProperty.call(arrayResult, key)) {
+        const element = arrayResult[key];
+        let time = new Date(element * 1000).toISOString().slice(11, 23);
+        arrayResult[key] = time;
+      }
+    }
+    return arrayResult;
   }
 
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={{ flexDirection: "row", marginTop: 40 }}>
-          {/* <Button
-            style={{ flex: 1, justifyContent: "flex-start" }}
-            onPress={() => {}}
-          >
-            Export CSV
-          </Button> */}
+        <View style={{ flexDirection: "row", marginTop: 20 }}>
           <Button
             style={{
               flex: 1,
               justifyContent: "flex-end",
             }}
             onPress={() => {
-              this.checkSoChuKyMin(
-                this.state.timeLap,
-                this.state.numObserveCurrent
-              );
+              this.chinhLy(this.state.timeLap, this.state.numObserveCurrent);
             }}
           >
             {this.checkTitle()}
@@ -115,6 +121,7 @@ export default class StopWatch extends React.Component {
           <View style={styles.sectionStyle}>
             <Stopwatch
               laps
+              msecs
               start={this.state.isStopwatchStart}
               reset={this.state.resetStopwatch}
               options={options}

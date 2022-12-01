@@ -13,17 +13,15 @@ export default function InputInfoObserve({ navigation }) {
 
   global.estTime = estTime;
   global.numObserve = numObserve;
-  estTime < 1
+  estTime <= 1
     ? (global.soChuKyMin = 21)
-    : estTime < 2
+    : estTime <= 2
     ? (global.soChuKyMin = 15)
-    : estTime < 5
+    : estTime <= 5
     ? (global.soChuKyMin = 10)
-    : estTime < 10
+    : estTime <= 10
     ? (global.soChuKyMin = 7)
-    : estTime < 10
-    ? (global.soChuKyMin = 5)
-    : (global.soChuKyMin = 21);
+    : (global.soChuKyMin = 5);
 
   return (
     <Background>

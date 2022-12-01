@@ -28,7 +28,7 @@ export default class Pictures extends Component {
     return this.state.startCamera ? (
       <View style={{ flex: 1, width: "100%" }}>
         <Camera
-          // style={}
+          style={{ flex: 1, width: "100%" }}
           type={Camera.Constants.Type.back}
           ref={(ref) => {
             this.camera = ref;
@@ -40,12 +40,6 @@ export default class Pictures extends Component {
         </Camera>
       </View>
     ) : (
-      // {/* <Camera
-      //   style={{ flex: 1, width: "100%" }}
-      //   ref={(r) => {
-      //     this.state.camera = r;
-      //   }}
-      // ></Camera> */}
       <View
         style={{
           flex: 1,
