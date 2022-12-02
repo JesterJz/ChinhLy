@@ -164,6 +164,7 @@ export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
   let chuKy = [];
   let resultQuanSat = 0;
   let soChuKy = timeInput.length;
+  let sumAmountNumber = 0;
 
   timeInput.forEach((element) => {
     element = displayTime(element);

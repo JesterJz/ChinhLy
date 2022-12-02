@@ -52,8 +52,9 @@ export default class StopWatch extends React.Component {
         global.numEleJob,
         global.numObserve
       );
+      console.log("arrayResult", arrayResult, sumArrayResult, resultQuanSat);
       if (resultQuanSat != 0) {
-        global.resultAllQuanSat += resultQuanSat;
+        global.resultAllQuanSat = resultQuanSat + global.resultAllQuanSat;
         global.dataExportCSV = Object.assign(
           {
             name: "Quan sat lan " + this.state.numObserveCurrent,
@@ -70,17 +71,21 @@ export default class StopWatch extends React.Component {
           timeLap: resultCovertTime,
         });
       }
+      console.log("global.numObserve", global.numObserve, timeCurrent);
       if (timeCurrent == global.numObserve) {
         let HaoPhi = soLanQuanSat / global.resultAllQuanSat;
-        Alert.alert("Kết quả", "Hao phí là: " + HaoPhi.toFixed(1) + " s", [
-          { text: "Export CSV", onPress: () => console.log("OK Pressed") },
-        ]);
+        console.log("global.resultAllQuanSat", global.resultAllQuanSat);
+        console.log("so lan quan sat", soLanQuanSat);
+        console.log("HaoPhi", HaoPhi);
+        alert("Hao phí là: " + HaoPhi.toFixed(2) + " s");
+        return HaoPhi;
         // this.exportCSV(global.dataExportCSV);
       }
       this.setState({
         numObserveCurrent: this.state.numObserveCurrent + 1,
         timeLap: [],
       });
+      console.log("global.dataExportCSV", global.dataExportCSV);
     }
   }
   checkTitle() {
@@ -102,6 +107,7 @@ export default class StopWatch extends React.Component {
   }
 
   render() {
+    global.resultAllQuanSat = 0;
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ flexDirection: "row", marginTop: 20 }}>
@@ -111,7 +117,11 @@ export default class StopWatch extends React.Component {
               justifyContent: "flex-end",
             }}
             onPress={() => {
-              this.chinhLy(this.state.timeLap, this.state.numObserveCurrent);
+              this.chinhLy(
+                this.state.timeLap,
+                this.state.numObserveCurrent,
+                global.numObserve
+              );
             }}
           >
             {this.checkTitle()}
