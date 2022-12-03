@@ -4,7 +4,7 @@ import { displayTime } from "./util";
 import { ChinhLy } from "./ChinhLy";
 import { ChinhLyKhongChuKy } from "./ChinhLyKhongChuKy";
 import { ExportToCsv } from "export-to-csv";
-// import { withNavigationFocus } from "@react-navigation";
+import { CSVLink, CSVDownload } from "react-csv";
 
 import {
   SafeAreaView,
@@ -87,11 +87,16 @@ export default class StopWatch extends React.Component {
           console.log("so lan quan sat", soLanQuanSat);
           console.log("HaoPhi", HaoPhi);
           alert("Hao phí là: " + HaoPhi.toFixed(2) + " s");
-          global.estTime = 0;
-          global.numEleJobCurrent = global.numEleJobCurrent + 1;
-          global.nameEleJob = "";
-          global.numObserve = 0;
-          this.props.navigation.push("InputTypeJob");
+          if (global.numEleJob == global.numEleJobCurrent) {
+            alert("Đã hoàn thành công việc");
+            this.props.navigation.push("InputName");
+          } else {
+            global.estTime = 0;
+            global.numEleJobCurrent = global.numEleJobCurrent + 1;
+            global.nameEleJob = "";
+            global.numObserve = 0;
+            this.props.navigation.push("InputTypeJob");
+          }
           return HaoPhi;
           // this.exportCSV(global.dataExportCSV);
         }
@@ -114,16 +119,30 @@ export default class StopWatch extends React.Component {
 
         let HaoPhi = resultQuanSat.toFixed(2);
         alert("Kết quả là : " + HaoPhi + " s");
-        // this.exportCSV(global.dataExportCSV);
 
         this.setState({
           numObserveCurrent: this.state.numObserveCurrent + 1,
           timeLap: [],
         });
-        global.numEleJobCurrent = global.numEleJobCurrent + 1;
-        global.nameEleJob = "";
-        global.numObserve = 0;
-        this.props.navigation.push("InputTypeJob");
+        if (global.numEleJob == global.numEleJobCurrent) {
+          Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            {
+              text: "Export CSV",
+              onPress: () => this.exportCSV(global.dataExportCSV),
+            },
+          ]);
+          this.props.navigation.push("InputName");
+        } else {
+          global.numEleJobCurrent = global.numEleJobCurrent + 1;
+          global.nameEleJob = "";
+          global.numObserve = 0;
+          this.props.navigation.push("InputTypeJob");
+        }
 
         return HaoPhi;
       }
