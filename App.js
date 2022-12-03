@@ -11,6 +11,7 @@ import InputName from "./screens/InputName";
 import StartScreen from "./screens/StartScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import InputInfoObserve from "./screens/InputInfoObserve";
+import InputTypeJob from "./screens/InputTypeJob";
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,7 @@ export default function App() {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="InputName" component={InputName} />
+        <Stack.Screen name="InputTypeJob" component={InputTypeJob} />
         <Stack.Screen name="InputInfoObserve" component={InputInfoObserve} />
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen

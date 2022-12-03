@@ -74,7 +74,7 @@ function getLimMin(originArray, soChuKy) {
     return [cloneArray, true];
   } else {
     if (cloneArray.length < soChuKy * (2 / 3)) {
-      return [false, cloneArray]; // tra ve mang va trang thai hien tai de thu thap them
+      return [cloneArray, false]; // tra ve mang va trang thai hien tai de thu thap them
     }
     getLimMin(cloneArray, soChuKy);
   }

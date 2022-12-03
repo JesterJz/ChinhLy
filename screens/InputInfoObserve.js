@@ -10,40 +10,71 @@ import BackButton from "../components/BackButton";
 export default function InputInfoObserve({ navigation }) {
   const [estTime, onChangeEst] = useState(0);
   const [numObserve, onChangeNumObserve] = useState(0);
+  const [numObserveError, onChangeNumObserveError] = useState("");
+  const [estTimeError, onChangeEstTimeError] = useState("");
 
-  global.estTime = estTime;
   global.numObserve = numObserve;
-  estTime <= 1
-    ? (global.soChuKyMin = 21)
-    : estTime <= 2
-    ? (global.soChuKyMin = 15)
-    : estTime <= 5
-    ? (global.soChuKyMin = 10)
-    : estTime <= 10
-    ? (global.soChuKyMin = 7)
-    : (global.soChuKyMin = 5);
 
+  const CheckChukyMin = () => {
+    if (global.typeJob) {
+      global.estTime = estTime;
+      estTime == 0
+        ? ""
+        : estTime <= 1
+        ? (global.soChuKyMin = 21)
+        : estTime <= 2
+        ? (global.soChuKyMin = 15)
+        : estTime <= 5
+        ? (global.soChuKyMin = 10)
+        : estTime <= 10
+        ? (global.soChuKyMin = 7)
+        : (global.soChuKyMin = 5);
+      return (
+        <TextInput
+          label="Thời gian ước tính một chu kỳ"
+          returnKeyType="next"
+          onChangeText={onChangeEst}
+          value={estTime}
+          autoCapitalize="none"
+          error={estTimeError}
+          errorText={estTimeError}
+          keyboardType="numeric"
+        />
+      );
+    } else {
+      return "";
+    }
+  };
   return (
     <Background>
       <BackButton goBack={navigation.goBack} />
       <Logo />
-      <Header>Thông tin của lần quan sát</Header>
+      <Header>Thông tin quan sát</Header>
       <TextInput
         label="Số  lần quan sát"
         returnKeyType="next"
         onChangeText={onChangeNumObserve}
         value={numObserve}
         autoCapitalize="none"
+        error={numObserveError}
+        errorText={numObserveError}
+        keyboardType="numeric"
       />
-      <TextInput
-        label="Thời gian ước tính một chu kỳ"
-        returnKeyType="next"
-        onChangeText={onChangeEst}
-        value={estTime}
-        autoCapitalize="none"
-      />
-      <Button mode="contained" onPress={() => navigation.navigate("Tabs")}>
-        {/* <Button mode="contained" onPress={Tabs()}> */}
+      <CheckChukyMin />
+      <Button
+        mode="contained"
+        onPress={() => {
+          numObserve === 0
+            ? onChangeNumObserveError("Hãy nhập số lần quan sát")
+            : onChangeNumObserveError("");
+          global.typeJob && estTime === 0
+            ? onChangeEstTimeError("Hãy nhập thời gian ước tính một chu kỳ")
+            : onChangeEstTimeError("");
+          if (numObserve !== 0) {
+            navigation.navigate("Tabs");
+          }
+        }}
+      >
         Bắt đầu
       </Button>
     </Background>

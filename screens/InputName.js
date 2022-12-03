@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import Background from "../components/Background";
 import Logo from "../components/Logo";
 import Header from "../components/Header";
@@ -11,9 +11,12 @@ import Tabs from "../components/Tabs";
 export default function InputName({ navigation }) {
   const [nameJob, onChangeNameJob] = useState("");
   const [numEleJob, onChangeNumEleJob] = useState(0);
+  const [nameError, onChangeNameError] = useState("");
+  const [numError, onChangeNumError] = useState("");
 
   global.nameJob = nameJob;
   global.numEleJob = numEleJob;
+  global.numEleJobCurrent = 1;
 
   return (
     <Background>
@@ -26,17 +29,35 @@ export default function InputName({ navigation }) {
         onChangeText={onChangeNameJob}
         value={nameJob}
         autoCapitalize="none"
+        error={nameError}
+        errorText={nameError}
       />
       <TextInput
         label="Số phần tử công việc"
         onChangeText={onChangeNumEleJob}
         value={numEleJob}
+        error={numError}
+        errorText={numError}
+        keyboardType="numeric"
       />
       <Button
         mode="contained"
-        onPress={() => navigation.navigate("InputInfoObserve")}
+        onPress={() => {
+          nameJob.trim() === ""
+            ? onChangeNameError("Hãy nhập tên công việc")
+            : onChangeNameError("");
+          typeof Number(numEleJob) == "number" && numEleJob > 0
+            ? onChangeNumError("")
+            : onChangeNumError("Hãy nhập số phần tử công việc");
+          if (
+            nameJob.trim() !== "" &&
+            typeof Number(numEleJob) == "number" &&
+            numEleJob > 0
+          ) {
+            navigation.navigate("InputTypeJob");
+          }
+        }}
       >
-        {/* <Button mode="contained" onPress={Tabs()}> */}
         Bắt đầu
       </Button>
     </Background>

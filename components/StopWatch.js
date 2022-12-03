@@ -2,7 +2,9 @@ import React from "react";
 import { Stopwatch, Timer } from "react-native-stopwatch-timer";
 import { displayTime } from "./util";
 import { ChinhLy } from "./ChinhLy";
+import { ChinhLyKhongChuKy } from "./ChinhLyKhongChuKy";
 import { ExportToCsv } from "export-to-csv";
+// import { withNavigationFocus } from "@react-navigation";
 
 import {
   SafeAreaView,
@@ -44,54 +46,97 @@ export default class StopWatch extends React.Component {
     }));
   }
   chinhLy(timeLap, timeCurrent, soLanQuanSat) {
-    if (timeLap.length < global.soChuKyMin) {
-      alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
+    if (global.typeJob == 1) {
+      if (timeLap.length < global.soChuKyMin) {
+        alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
+      } else {
+        let [resultQuanSat, arrayResult, sumArrayResult] = ChinhLy(
+          this.state.timeLap,
+          global.numEleJob,
+          global.numObserve
+        );
+        console.log("arrayResult", arrayResult, sumArrayResult, resultQuanSat);
+        if (resultQuanSat != 0) {
+          global.resultAllQuanSat = resultQuanSat + global.resultAllQuanSat;
+          global.dataExportCSV = Object.assign(
+            {
+              name: "Quan sat lan " + this.state.numObserveCurrent,
+              arrayResult: arrayResult,
+              sumArrayResult: sumArrayResult,
+            },
+            global.dataExportCSV
+          );
+        } else {
+          alert("Vui lòng thu thập thêm dữ liệu");
+          //convert laij thanh giay
+          resultCovertTime = this.covertTime(arrayResult);
+          this.setState({
+            timeLap: resultCovertTime,
+          });
+        }
+        console.log("global.numObserve", global.numObserve, timeCurrent);
+        this.setState({
+          numObserveCurrent: this.state.numObserveCurrent + 1,
+          timeLap: [],
+        });
+        global.numEleJobCurrent += 1;
+        console.log("global.dataExportCSV", global.dataExportCSV);
+        if (timeCurrent == global.numObserve) {
+          let HaoPhi = soLanQuanSat / global.resultAllQuanSat;
+          console.log("global.resultAllQuanSat", global.resultAllQuanSat);
+          console.log("so lan quan sat", soLanQuanSat);
+          console.log("HaoPhi", HaoPhi);
+          alert("Hao phí là: " + HaoPhi.toFixed(2) + " s");
+          global.estTime = 0;
+          global.numEleJobCurrent = global.numEleJobCurrent + 1;
+          global.nameEleJob = "";
+          global.numObserve = 0;
+          this.props.navigation.push("InputTypeJob");
+          return HaoPhi;
+          // this.exportCSV(global.dataExportCSV);
+        }
+      }
     } else {
-      let [resultQuanSat, arrayResult, sumArrayResult] = ChinhLy(
-        this.state.timeLap,
-        global.numEleJob,
-        global.numObserve
-      );
-      console.log("arrayResult", arrayResult, sumArrayResult, resultQuanSat);
-      if (resultQuanSat != 0) {
-        global.resultAllQuanSat = resultQuanSat + global.resultAllQuanSat;
+      if (timeLap.length < soLanQuanSat) {
+        alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + soLanQuanSat);
+      } else {
+        let [resultQuanSat, arrayResult] = ChinhLyKhongChuKy(timeLap);
+
         global.dataExportCSV = Object.assign(
           {
-            name: "Quan sat lan " + this.state.numObserveCurrent,
+            name: global.nameEleJob,
             arrayResult: arrayResult,
-            sumArrayResult: sumArrayResult,
+            sumArrayResult: "",
+            resultQuanSat: resultQuanSat,
           },
           global.dataExportCSV
         );
-      } else {
-        alert("Vui lòng thu thập thêm dữ liệu");
-        //convert laij thanh giay
-        resultCovertTime = this.covertTime(arrayResult);
-        this.setState({
-          timeLap: resultCovertTime,
-        });
-      }
-      console.log("global.numObserve", global.numObserve, timeCurrent);
-      if (timeCurrent == global.numObserve) {
-        let HaoPhi = soLanQuanSat / global.resultAllQuanSat;
-        console.log("global.resultAllQuanSat", global.resultAllQuanSat);
-        console.log("so lan quan sat", soLanQuanSat);
-        console.log("HaoPhi", HaoPhi);
-        alert("Hao phí là: " + HaoPhi.toFixed(2) + " s");
-        return HaoPhi;
+
+        let HaoPhi = resultQuanSat.toFixed(2);
+        alert("Kết quả là : " + HaoPhi + " s");
         // this.exportCSV(global.dataExportCSV);
+
+        this.setState({
+          numObserveCurrent: this.state.numObserveCurrent + 1,
+          timeLap: [],
+        });
+        global.numEleJobCurrent = global.numEleJobCurrent + 1;
+        global.nameEleJob = "";
+        global.numObserve = 0;
+        this.props.navigation.push("InputTypeJob");
+
+        return HaoPhi;
       }
-      this.setState({
-        numObserveCurrent: this.state.numObserveCurrent + 1,
-        timeLap: [],
-      });
-      console.log("global.dataExportCSV", global.dataExportCSV);
     }
   }
   checkTitle() {
-    if (this.state.numObserveCurrent < global.numObserve) {
-      return "Kết thúc quan sát lần: " + this.state.numObserveCurrent;
-    } else if (this.state.numObserveCurrent == global.numObserve) {
+    if (global.typeJob) {
+      if (this.state.numObserveCurrent < global.numObserve) {
+        return "Kết thúc quan sát lần: " + this.state.numObserveCurrent;
+      } else if (this.state.numObserveCurrent == global.numObserve) {
+        return "Bắt đầu chỉnh lý";
+      }
+    } else {
       return "Bắt đầu chỉnh lý";
     }
   }
