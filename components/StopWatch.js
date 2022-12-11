@@ -106,40 +106,54 @@ export default class StopWatch extends React.Component {
           console.log("global.resultAllQuanSat", global.resultAllQuanSat);
           console.log("so lan quan sat", soLanQuanSat);
           console.log("HaoPhi", HaoPhi);
-          alert(
-            "Hao phí là của phần từ thứ " +
-              global.numEleJobCurrent +
-              "là: " +
-              HaoPhi.toFixed(2) +
-              " s"
-          );
           global.dataExportCSV = Object.assign(
             {
               HaoPhi: HaoPhi.toFixed(2),
             },
             global.dataExportCSV
           );
-          if (global.numEleJob == global.numEleJobCurrent) {
-            //ket thuc cong viec
-            Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+          Alert.alert(
+            "Kết quả",
+            "Hao phí là của phần từ thứ " +
+              global.numEleJobCurrent +
+              " là: " +
+              HaoPhi.toFixed(2) +
+              " s",
+            [
               {
                 text: "Cancel",
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel",
               },
               {
-                text: "Export CSV",
-                onPress: () => this.ExportToCsv(global.dataExportCSV),
+                text: "Ok",
+                onPress: () => {
+                  if (global.numEleJob == global.numEleJobCurrent) {
+                    //ket thuc cong viec
+                    Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+                      {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel",
+                      },
+                      {
+                        text: "Export CSV",
+                        onPress: () => this.ExportToCsv(global.dataExportCSV),
+                      },
+                    ]);
+                    this.props.navigation.push("InputName");
+                  } else {
+                    global.numEleJobCurrent = global.numEleJobCurrent + 1;
+                    global.estTime = 0;
+                    global.nameEleJob = "";
+                    global.numObserve = 0;
+                    global.typeJob = 0;
+                    this.props.navigation.push("InputTypeJob");
+                  }
+                },
               },
-            ]);
-            this.props.navigation.push("InputName");
-          } else {
-            global.estTime = 0;
-            global.numEleJobCurrent = global.numEleJobCurrent + 1;
-            global.nameEleJob = "";
-            global.numObserve = 0;
-            this.props.navigation.push("InputTypeJob");
-          }
+            ]
+          );
           return HaoPhi;
         }
       }
@@ -157,32 +171,51 @@ export default class StopWatch extends React.Component {
             sumArrayResult
           );
         }
-        let HaoPhi = resultQuanSat.toFixed(2);
-        alert("Kết quả là : " + HaoPhi + " s");
-
         this.setState({
           numObserveCurrent: this.state.numObserveCurrent + 1,
           timeLap: [],
         });
-        if (global.numEleJob == global.numEleJobCurrent) {
-          Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+        let HaoPhi = resultQuanSat.toFixed(2);
+        alert("Kết quả là : " + HaoPhi + " s");
+        Alert.alert(
+          "Kết quả",
+          "Hao phí là của phần từ thứ " +
+            global.numEleJobCurrent +
+            " là: " +
+            HaoPhi +
+            " s",
+          [
             {
               text: "Cancel",
               onPress: () => console.log("Cancel Pressed"),
               style: "cancel",
             },
             {
-              text: "Export CSV",
-              onPress: () => this.ExportToCsv(global.dataExportCSV),
+              text: "Ok",
+              onPress: () => {
+                if (global.numEleJob == global.numEleJobCurrent) {
+                  Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+                    {
+                      text: "Cancel",
+                      onPress: () => console.log("Cancel Pressed"),
+                      style: "cancel",
+                    },
+                    {
+                      text: "Export CSV",
+                      onPress: () => this.ExportToCsv(global.dataExportCSV),
+                    },
+                  ]);
+                  this.props.navigation.push("InputName");
+                } else {
+                  global.numEleJobCurrent = global.numEleJobCurrent + 1;
+                  global.nameEleJob = "";
+                  global.numObserve = 0;
+                  this.props.navigation.push("InputTypeJob");
+                }
+              },
             },
-          ]);
-          this.props.navigation.push("InputName");
-        } else {
-          global.numEleJobCurrent = global.numEleJobCurrent + 1;
-          global.nameEleJob = "";
-          global.numObserve = 0;
-          this.props.navigation.push("InputTypeJob");
-        }
+          ]
+        );
         return HaoPhi;
       }
     }
@@ -232,6 +265,7 @@ export default class StopWatch extends React.Component {
   //   }
   // };
   ExportToCsv = async (dataExportCSV) => {
+    console.log("dataExportCSV: " + JSON.stringify(dataExportCSV));
     const permissionWriteExternalStorage = async () => {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
@@ -241,47 +275,74 @@ export default class StopWatch extends React.Component {
     if (Platform.OS === "android") {
       const permissionGranted = await permissionWriteExternalStorage();
       if (permissionGranted) {
-        /* filter for the Presidents */
-        // const prez = dataExportCSV.filter((row) =>
-        //   row.terms.some((term) => term.type === "prez")
-        // );
-        //     /* flatten objects */
-        //     const rows = prez.map((row) => ({
-        //       name: row.name.first + " " + row.name.last,
-        //       birthday: row.bio.birthday,
-        //     }));
-        let rows = [["Tên công việc", global.nameJob], ["Kết quả thu thập"]];
-        rows.push(
-          ["Tên phần tử công việc", dataExportCSV.eleJob[0].name],
-          ["Loại công việc", dataExportCSV.eleJob[0].type]
-        );
-        const rowTitleTemp = [
-          ...Array(
-            dataExportCSV.eleJob[0].QS[0].arrayBeforeChinhLy.length
-          ).keys(),
-        ].slice(1);
-        rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ");
-        rows.push(rowTitleTemp);
+        let rows = [
+          ["Tên công việc", dataExportCSV.nameJob],
+          ["Kết quả thu thập"],
+        ];
+        for (const key in dataExportCSV.eleJob) {
+          if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
+            const element = dataExportCSV.eleJob[key];
+            const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
+            rows.push(["Tên phần tử công việc", element.name]);
+            rows.push(["Loại công việc", element.type]);
+            const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
+            rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ");
+            rows.push(rowTitleTemp);
+            for (const keyQS in element.QS) {
+              if (Object.hasOwnProperty.call(element.QS, keyQS)) {
+                const elementQS = element.QS[keyQS];
+                let rowTemp = [
+                  parseInt(keyQS) + 1,
+                  elementQS.arrayBeforeChinhLy.length,
+                  ...elementQS.arrayBeforeChinhLy,
+                ];
+                rows.push(rowTemp);
+              }
+            }
+          }
+        }
+        rows.push(["Kết quả chỉnh lý"]);
+        for (const key in dataExportCSV.eleJob) {
+          if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
+            const element = dataExportCSV.eleJob[key];
+            const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
+            rows.push(["Tên phần tử công việc", element.name]);
+            rows.push(["Loại công việc", element.type]);
+            const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
+            rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ", "Kod", "Hao phí");
+            rows.push(rowTitleTemp);
+            for (const keyQS in element.QS) {
+              if (Object.hasOwnProperty.call(element.QS, keyQS)) {
+                const elementQS = element.QS[keyQS];
+                let rowTemp = [
+                  parseInt(keyQS) + 1,
+                  elementQS.soChuky,
+                  elementQS.Kod,
+                  elementQS.resultQuanSat,
+                  ...elementQS.arrayAfterChinhLy,
+                ];
+                rows.push(rowTemp);
+              }
+            }
+          }
+        }
+        rows.push(["Kết quả hao phí", dataExportCSV.HaoPhi]);
 
-        // element.arrayBeforeChinhLy.forEach((key) => {
-        //   rowTitleTemp.push(key);
-        // });
-        // rows.push(rowTitleTemp);
-        // for (const key in element.arrayBeforeChinhLy) {
-        //   let rowTemp = [key, elementTemp.length];
-        //   elementTemp.forEach((key) => {
-        //     rowTemp.push(key);
-        //   });
-        //   rows.push(rowTemp);
-        // }
-
-        //       // if (Object.hasOwnProperty.call(dataExportCSV, key)) {
-        //       //   const element = dataExportCSV[key];
-        //       //   rows.push([element.name, element.result]);
-        //       // }
-        //     }
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        //     //     console.log(typeof rows);
+        worksheet["A1"].s = {
+          fill: {
+            patternType: "solid",
+            fgColor: { rgb: "FF939393" },
+          },
+          font: {
+            name: "Times New Roman",
+            sz: 16,
+            color: { rgb: "#FF000000" },
+            bold: false,
+            italic: false,
+            underline: false,
+          },
+        };
         //     //     /* generate worksheet and workbook */
         //     //     const worksheet = XLSX.utils.json_to_sheet(rows);
         const workbook = XLSX.utils.book_new();
@@ -291,8 +352,8 @@ export default class StopWatch extends React.Component {
         //     //   origin: "A1",
         //     // });
         /* calculate column width */
-        const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
-        worksheet["!cols"] = [{ wch: max_width }];
+        // const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
+        worksheet["!cols"] = [{ wch: 15 }];
         if (!worksheet["!merges"]) worksheet["!merges"] = [];
         worksheet["!merges"].push(XLSX.utils.decode_range("A2:E2"));
         const base64 = XLSX.write(workbook, { type: "base64" });

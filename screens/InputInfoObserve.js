@@ -16,7 +16,7 @@ export default function InputInfoObserve({ navigation }) {
   global.numObserve = numObserve;
 
   const CheckChukyMin = () => {
-    if (global.typeJob) {
+    if (global.typeJob == 1) {
       global.estTime = estTime;
       estTime == 0
         ? ""

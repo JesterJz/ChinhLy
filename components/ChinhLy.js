@@ -153,21 +153,20 @@ function calculateHaveT(result, soChuKy, soPhanTu, Kod) {
   }
 }
 export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
-  let chuKy = [4, 3, 4, 3, 3, 4, 4, 3, 3, 3, 4, 3, 4, 4, 3, 3, 3, 4, 3, 3, 3];
   let resultQuanSat = 0;
-  let soChuKy = chuKy.length;
   let sumAmountNumber = 0;
   let Kod = 0;
 
-  // timeInput.forEach((element) => {
-  //   element = displayTime(element);
-  //   chuKy.push(element);
-  // });
+  timeInput.forEach((element) => {
+    element = displayTime(element);
+    chuKy.push(element);
+  });
 
   chuKy.sort();
 
   let aMax = Math.max(...chuKy);
   let aMin = Math.min(...chuKy);
+  let soChuKy = chuKy.length;
 
   aMin == 0 ? (Kod = 0) : (Kod = aMax / aMin);
 
