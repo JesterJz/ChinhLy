@@ -19,6 +19,14 @@ export default function InputTypeJob({ navigation }) {
   global.typeJob = typeJob;
   console.log("global.numEleJobCurrent", global.numEleJobCurrent);
   const countries = ["Không chu kỳ", "Có chu kỳ"];
+  function exportData() {
+    const Object = {
+      name: global.nameEleJob,
+      type: global.typeJob,
+      QS: [],
+    };
+    global.dataExportCSV.eleJob.push(Object);
+  }
   return (
     <Background>
       <BackButton goBack={navigation.goBack} />
@@ -70,7 +78,7 @@ export default function InputTypeJob({ navigation }) {
             ? onChangeTypeJobError("Hãy chọn loại công việc")
             : onChangeTypeJobError("");
           if (nameEleJob.trim() !== "" && typeJob !== 100) {
-            console.log("nameEleJob: " + nameEleJob);
+            exportData();
             navigation.navigate("InputInfoObserve");
           }
         }}

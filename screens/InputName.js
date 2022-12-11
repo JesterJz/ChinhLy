@@ -17,6 +17,15 @@ export default function InputName({ navigation }) {
   global.nameJob = nameJob;
   global.numEleJob = numEleJob;
   global.numEleJobCurrent = 1;
+  function addDataExport(nameJob) {
+    global.dataExportCSV = Object.assign(
+      {
+        nameJob: global.nameJob,
+        eleJob: [],
+      },
+      global.dataExportCSV
+    );
+  }
 
   return (
     <Background>
@@ -54,6 +63,7 @@ export default function InputName({ navigation }) {
             typeof Number(numEleJob) == "number" &&
             numEleJob > 0
           ) {
+            addDataExport(nameJob);
             navigation.navigate("InputTypeJob");
           }
         }}

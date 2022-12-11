@@ -16,9 +16,12 @@
     "deprecated-react-native-prop-types": "^2.3.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "expo": "~47.0.3",
+    "expo-asset": "^8.6.2",
     "expo-camera": "~13.1.0",
     "expo-dev-client": "~2.0.1",
-    "expo-media-library": "^15.0.0",
+    "expo-document-picker": "^11.0.1",
+    "expo-file-system": "^15.1.1",
+    "expo-media-library": "~15.0.0",
     "expo-sharing": "^11.0.1",
     "expo-splash-screen": "^0.17.5",
     "expo-status-bar": "~1.4.2",
@@ -33,7 +36,10 @@
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
     "react-native-app-link": "^1.0.1",
+    "react-native-blob-util": "^0.17.0",
     "react-native-date-picker": "^4.2.6",
+    "react-native-file-access": "^2.5.2",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.8.0",
     "react-native-ionicons": "^4.6.5",
     "react-native-paper": "^4.12.5",
@@ -43,9 +49,12 @@
     "react-native-select-dropdown": "^3.1.0",
     "react-native-status-bar-height": "^2.6.0",
     "react-native-stopwatch-timer": "^0.0.21",
+    "react-native-table-component": "^1.2.2",
     "react-native-web": "^0.18.10",
+    "rn-fetch-blob": "^0.12.0",
     "underscore": "^1.13.6",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^4.11.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

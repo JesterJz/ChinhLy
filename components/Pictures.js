@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  PermissionsAndroid,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Camera } from "expo-camera";
 export default class Pictures extends Component {
@@ -12,15 +18,39 @@ export default class Pictures extends Component {
   }
   // let camera: Camera
   // async componentDidMount() {
-  setStartCamera = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      // start the camera
-      this.setState({
-        startCamera: true,
-      });
-    } else {
-      Alert.alert("Access denied");
+  // setStartCamera = async () => {
+  //   const { status } = await Camera.requestCameraPermissionsAsync();
+  //   if (status === "granted") {
+  //     // start the camera
+  //     this.setState({
+  //       startCamera: true,
+  //     });
+  //   } else {
+  //     Alert.alert("Access denied");
+  //   }
+  // };
+  requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        // PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: "Cool Photo App Camera Permission",
+          message:
+            "Cool Photo App needs access to your camera " +
+            "so you can take awesome pictures.",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK",
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the camera");
+      } else {
+        console.log("Camera permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
     }
   };
 
@@ -49,7 +79,7 @@ export default class Pictures extends Component {
         }}
       >
         <TouchableOpacity
-          onPress={this.setStartCamera}
+          onPress={this.requestCameraPermission}
           style={{
             width: 130,
             borderRadius: 4,

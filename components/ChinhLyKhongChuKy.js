@@ -12,5 +12,5 @@ export const ChinhLyKhongChuKy = (timeInput) => {
     return accumulator + value;
   }, 0);
   let result = sum / chuKy.length;
-  return [result, chuKy];
+  return [result, chuKy, sum];
 };

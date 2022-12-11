@@ -5,6 +5,9 @@ import { ChinhLy } from "./ChinhLy";
 import { ChinhLyKhongChuKy } from "./ChinhLyKhongChuKy";
 import { ExportToCsv } from "export-to-csv";
 import { CSVLink, CSVDownload } from "react-csv";
+import { PermissionsAndroid } from "react-native";
+import * as XLSX from "xlsx";
+import * as FileSystem from "expo-file-system";
 
 import {
   SafeAreaView,
@@ -22,6 +25,7 @@ import {
   Portal,
   Provider,
 } from "react-native-paper";
+import { Asset } from "expo-asset";
 
 export default class StopWatch extends React.Component {
   constructor(props) {
@@ -45,50 +49,89 @@ export default class StopWatch extends React.Component {
       timeLap: [...prevState.timeLap, t],
     }));
   }
+  generateDataCoChuKy(chuKy, Kod, arrayResult, sumArrayResult, resultQuanSat) {
+    global.dataExportCSV.eleJob[global.numEleJobCurrent - 1].QS.push({
+      soChuky: chuKy.length,
+      Kod: Kod.toFixed(2),
+      arrayBeforeChinhLy: chuKy,
+      arrayAfterChinhLy: arrayResult,
+      sumArrayAfterResult: sumArrayResult,
+      resultQuanSat: resultQuanSat.toFixed(2),
+    });
+  }
+  generateDataKhongChuKy(resultQuanSat, arrayResult, sumArrayResult) {
+    global.dataExportCSV.eleJob[global.numEleJobCurrent - 1].QS.push({
+      soChuky: arrayResult.length,
+      Kod: null,
+      arrayBeforeChinhLy: arrayResult,
+      arrayAfterChinhLy: arrayResult,
+      sumArrayAfterResult: sumArrayResult,
+      resultQuanSat: resultQuanSat.toFixed(2),
+    });
+  }
   chinhLy(timeLap, timeCurrent, soLanQuanSat) {
+    //co chu ky
     if (global.typeJob == 1) {
       if (timeLap.length < global.soChuKyMin) {
         alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
       } else {
-        let [resultQuanSat, arrayResult, sumArrayResult] = ChinhLy(
+        let [chuKy, Kod, arrayResult, resultQuanSat, sumArrayResult] = ChinhLy(
           this.state.timeLap,
           global.numEleJob,
           global.numObserve
         );
-        console.log("arrayResult", arrayResult, sumArrayResult, resultQuanSat);
         if (resultQuanSat != 0) {
           global.resultAllQuanSat = resultQuanSat + global.resultAllQuanSat;
-          global.dataExportCSV = Object.assign(
-            {
-              name: "Quan sat lan " + this.state.numObserveCurrent,
-              arrayResult: arrayResult,
-              sumArrayResult: sumArrayResult,
-            },
-            global.dataExportCSV
+          this.generateDataCoChuKy(
+            chuKy,
+            Kod,
+            arrayResult,
+            sumArrayResult,
+            resultQuanSat
           );
         } else {
           alert("Vui lòng thu thập thêm dữ liệu");
-          //convert laij thanh giay
           resultCovertTime = this.covertTime(arrayResult);
           this.setState({
             timeLap: resultCovertTime,
           });
         }
-        console.log("global.numObserve", global.numObserve, timeCurrent);
         this.setState({
           numObserveCurrent: this.state.numObserveCurrent + 1,
           timeLap: [],
         });
-        global.numEleJobCurrent += 1;
-        console.log("global.dataExportCSV", global.dataExportCSV);
         if (timeCurrent == global.numObserve) {
+          // ket thuc 1 phan tu
           let HaoPhi = soLanQuanSat / global.resultAllQuanSat;
           console.log("global.resultAllQuanSat", global.resultAllQuanSat);
           console.log("so lan quan sat", soLanQuanSat);
           console.log("HaoPhi", HaoPhi);
-          alert("Hao phí là: " + HaoPhi.toFixed(2) + " s");
+          alert(
+            "Hao phí là của phần từ thứ " +
+              global.numEleJobCurrent +
+              "là: " +
+              HaoPhi.toFixed(2) +
+              " s"
+          );
+          global.dataExportCSV = Object.assign(
+            {
+              HaoPhi: HaoPhi.toFixed(2),
+            },
+            global.dataExportCSV
+          );
           if (global.numEleJob == global.numEleJobCurrent) {
-            alert("Đã hoàn thành công việc");
+            //ket thuc cong viec
+            Alert.alert("Kết thúc", "Đã hoàn thành công việc", [
+              {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+              {
+                text: "Export CSV",
+                onPress: () => this.ExportToCsv(global.dataExportCSV),
+              },
+            ]);
             this.props.navigation.push("InputName");
           } else {
             global.estTime = 0;
@@ -98,25 +141,22 @@ export default class StopWatch extends React.Component {
             this.props.navigation.push("InputTypeJob");
           }
           return HaoPhi;
-          // this.exportCSV(global.dataExportCSV);
         }
       }
+      //khong chu ky
     } else {
       if (timeLap.length < soLanQuanSat) {
         alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + soLanQuanSat);
       } else {
-        let [resultQuanSat, arrayResult] = ChinhLyKhongChuKy(timeLap);
-
-        global.dataExportCSV = Object.assign(
-          {
-            name: global.nameEleJob,
-            arrayResult: arrayResult,
-            sumArrayResult: "",
-            resultQuanSat: resultQuanSat,
-          },
-          global.dataExportCSV
-        );
-
+        let [resultQuanSat, arrayResult, sumArrayResult] =
+          ChinhLyKhongChuKy(timeLap);
+        if (resultQuanSat != 0) {
+          this.generateDataKhongChuKy(
+            resultQuanSat,
+            arrayResult,
+            sumArrayResult
+          );
+        }
         let HaoPhi = resultQuanSat.toFixed(2);
         alert("Kết quả là : " + HaoPhi + " s");
 
@@ -133,7 +173,7 @@ export default class StopWatch extends React.Component {
             },
             {
               text: "Export CSV",
-              onPress: () => this.exportCSV(global.dataExportCSV),
+              onPress: () => this.ExportToCsv(global.dataExportCSV),
             },
           ]);
           this.props.navigation.push("InputName");
@@ -143,7 +183,6 @@ export default class StopWatch extends React.Component {
           global.numObserve = 0;
           this.props.navigation.push("InputTypeJob");
         }
-
         return HaoPhi;
       }
     }
@@ -169,6 +208,122 @@ export default class StopWatch extends React.Component {
     }
     return arrayResult;
   }
+  // requestCameraPermission = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: "Cool Photo App Camera Permission",
+  //         message:
+  //           "Cool Photo App needs access to your camera " +
+  //           "so you can take awesome pictures.",
+  //         buttonNeutral: "Ask Me Later",
+  //         buttonNegative: "Cancel",
+  //         buttonPositive: "OK",
+  //       }
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log("You can use the camera");
+  //     } else {
+  //       console.log("Camera permission denied");
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
+  ExportToCsv = async (dataExportCSV) => {
+    const permissionWriteExternalStorage = async () => {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    };
+    if (Platform.OS === "android") {
+      const permissionGranted = await permissionWriteExternalStorage();
+      if (permissionGranted) {
+        /* filter for the Presidents */
+        // const prez = dataExportCSV.filter((row) =>
+        //   row.terms.some((term) => term.type === "prez")
+        // );
+        //     /* flatten objects */
+        //     const rows = prez.map((row) => ({
+        //       name: row.name.first + " " + row.name.last,
+        //       birthday: row.bio.birthday,
+        //     }));
+        let rows = [["Tên công việc", global.nameJob], ["Kết quả thu thập"]];
+        rows.push(
+          ["Tên phần tử công việc", dataExportCSV.eleJob[0].name],
+          ["Loại công việc", dataExportCSV.eleJob[0].type]
+        );
+        const rowTitleTemp = [
+          ...Array(
+            dataExportCSV.eleJob[0].QS[0].arrayBeforeChinhLy.length
+          ).keys(),
+        ].slice(1);
+        rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ");
+        rows.push(rowTitleTemp);
+
+        // element.arrayBeforeChinhLy.forEach((key) => {
+        //   rowTitleTemp.push(key);
+        // });
+        // rows.push(rowTitleTemp);
+        // for (const key in element.arrayBeforeChinhLy) {
+        //   let rowTemp = [key, elementTemp.length];
+        //   elementTemp.forEach((key) => {
+        //     rowTemp.push(key);
+        //   });
+        //   rows.push(rowTemp);
+        // }
+
+        //       // if (Object.hasOwnProperty.call(dataExportCSV, key)) {
+        //       //   const element = dataExportCSV[key];
+        //       //   rows.push([element.name, element.result]);
+        //       // }
+        //     }
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        //     //     console.log(typeof rows);
+        //     //     /* generate worksheet and workbook */
+        //     //     const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
+        //     //     /* fix headers */
+        //     // XLSX.utils.sheet_add_aoa(worksheet, [["Name", "Birthday"]], {
+        //     //   origin: "A1",
+        //     // });
+        /* calculate column width */
+        const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
+        worksheet["!cols"] = [{ wch: max_width }];
+        if (!worksheet["!merges"]) worksheet["!merges"] = [];
+        worksheet["!merges"].push(XLSX.utils.decode_range("A2:E2"));
+        const base64 = XLSX.write(workbook, { type: "base64" });
+        const permissions =
+          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (!permissions.granted) {
+          return;
+        }
+        try {
+          await FileSystem.StorageAccessFramework.createFileAsync(
+            permissions.directoryUri,
+            "myExcel.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          )
+            .then(async (uri) => {
+              await FileSystem.writeAsStringAsync(uri, base64, {
+                encoding: FileSystem.EncodingType.Base64,
+              }).then(() => {
+                alert("File Saved Successfully!");
+              });
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        } catch (e) {
+          throw new Error(e);
+        }
+      }
+      return;
+    }
+  };
 
   render() {
     global.resultAllQuanSat = 0;
@@ -186,6 +341,7 @@ export default class StopWatch extends React.Component {
                 this.state.numObserveCurrent,
                 global.numObserve
               );
+              // this.ExportToCsv(global.dataExportCSV);
             }}
           >
             {this.checkTitle()}

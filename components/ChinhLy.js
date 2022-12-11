@@ -94,22 +94,14 @@ function getEtt(originArray) {
   return result;
 }
 
-function calculateHaveT(result, soChuKy, soPhanTu) {
-  let stabilityCoe = 0;
-
-  let aMax = Math.max(...result);
-  let aMin = Math.min(...result);
-
-  // tinh K
-  aMin == 0 ? (stabilityCoe = 0) : (stabilityCoe = aMax / aMin);
-
-  if (stabilityCoe <= 1.3) {
+function calculateHaveT(result, soChuKy, soPhanTu, Kod) {
+  if (Kod <= 1.3) {
     const sum = result.reduce((accumulator, value) => {
       return accumulator + value;
     }, 0);
 
     return [sum, result];
-  } else if (1.3 < stabilityCoe <= 2) {
+  } else if (1.3 < Kod <= 2) {
     let [limMax, statusMax] = getLimMax(result, soChuKy);
 
     if (statusMax == false) {
@@ -125,7 +117,7 @@ function calculateHaveT(result, soChuKy, soPhanTu) {
         return [sum, limMin];
       }
     }
-  } else if (2 < stabilityCoe) {
+  } else if (2 < Kod) {
     let eTTNum = getEtt(result);
     let e = 0;
     //so phan tu cua chu ky
@@ -161,25 +153,36 @@ function calculateHaveT(result, soChuKy, soPhanTu) {
   }
 }
 export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
-  let chuKy = [];
+  let chuKy = [4, 3, 4, 3, 3, 4, 4, 3, 3, 3, 4, 3, 4, 4, 3, 3, 3, 4, 3, 3, 3];
   let resultQuanSat = 0;
-  let soChuKy = timeInput.length;
+  let soChuKy = chuKy.length;
   let sumAmountNumber = 0;
+  let Kod = 0;
 
-  timeInput.forEach((element) => {
-    element = displayTime(element);
-    chuKy.push(element);
-  });
+  // timeInput.forEach((element) => {
+  //   element = displayTime(element);
+  //   chuKy.push(element);
+  // });
 
   chuKy.sort();
 
-  let [sumAfterChinhLy, arrayResult] = calculateHaveT(chuKy, soChuKy, soPhanTu);
+  let aMax = Math.max(...chuKy);
+  let aMin = Math.min(...chuKy);
+
+  aMin == 0 ? (Kod = 0) : (Kod = aMax / aMin);
+
+  let [sumAfterChinhLy, arrayResult] = calculateHaveT(
+    chuKy,
+    soChuKy,
+    soPhanTu,
+    Kod
+  );
 
   if (sumAfterChinhLy == 0) {
     return [0, arrayResult, sumAfterChinhLy];
   } else {
     sumAmountNumber = arrayResult.length;
     resultQuanSat = sumAmountNumber / sumAfterChinhLy;
-    return [resultQuanSat, arrayResult, sumAfterChinhLy];
+    return [chuKy, Kod, arrayResult, resultQuanSat, sumAfterChinhLy];
   }
 };
