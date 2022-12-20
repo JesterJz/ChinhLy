@@ -31,6 +31,12 @@
       "bundleIdentifier": "com.jesterjz11.ChinhLy"
     },
     "android": {
+      "permissions": [
+        "CAMERA",
+        "MEDIA_LIBRARY",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

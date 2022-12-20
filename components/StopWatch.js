@@ -3,11 +3,10 @@ import { Stopwatch, Timer } from "react-native-stopwatch-timer";
 import { displayTime } from "./util";
 import { ChinhLy } from "./ChinhLy";
 import { ChinhLyKhongChuKy } from "./ChinhLyKhongChuKy";
-import { ExportToCsv } from "export-to-csv";
-import { CSVLink, CSVDownload } from "react-csv";
-import { PermissionsAndroid } from "react-native";
+import { FormatTime } from "./FormatTime";
 import * as XLSX from "xlsx";
 import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 import {
   SafeAreaView,
@@ -75,8 +74,9 @@ export default class StopWatch extends React.Component {
       if (timeLap.length < global.soChuKyMin) {
         alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + global.soChuKyMin);
       } else {
+        let timeLapse = FormatTime(timeLap);
         let [chuKy, Kod, arrayResult, resultQuanSat, sumArrayResult] = ChinhLy(
-          this.state.timeLap,
+          timeLapse,
           global.numEleJob,
           global.numObserve
         );
@@ -162,8 +162,9 @@ export default class StopWatch extends React.Component {
       if (timeLap.length < soLanQuanSat) {
         alert("Chưa đủ số chu kỳ. Số chu kỳ tối thiểu là " + soLanQuanSat);
       } else {
+        let timeLapse = FormatTime(timeLap);
         let [resultQuanSat, arrayResult, sumArrayResult] =
-          ChinhLyKhongChuKy(timeLap);
+          ChinhLyKhongChuKy(timeLapse);
         if (resultQuanSat != 0) {
           this.generateDataKhongChuKy(
             resultQuanSat,
@@ -241,149 +242,77 @@ export default class StopWatch extends React.Component {
     }
     return arrayResult;
   }
-  // requestCameraPermission = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //       {
-  //         title: "Cool Photo App Camera Permission",
-  //         message:
-  //           "Cool Photo App needs access to your camera " +
-  //           "so you can take awesome pictures.",
-  //         buttonNeutral: "Ask Me Later",
-  //         buttonNegative: "Cancel",
-  //         buttonPositive: "OK",
-  //       }
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log("You can use the camera");
-  //     } else {
-  //       console.log("Camera permission denied");
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
   ExportToCsv = async (dataExportCSV) => {
     console.log("dataExportCSV: " + JSON.stringify(dataExportCSV));
-    const permissionWriteExternalStorage = async () => {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    };
-    if (Platform.OS === "android") {
-      const permissionGranted = await permissionWriteExternalStorage();
-      if (permissionGranted) {
-        let rows = [
-          ["Tên công việc", dataExportCSV.nameJob],
-          ["Kết quả thu thập"],
-        ];
-        for (const key in dataExportCSV.eleJob) {
-          if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
-            const element = dataExportCSV.eleJob[key];
-            const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
-            rows.push(["Tên phần tử công việc", element.name]);
-            rows.push(["Loại công việc", element.type]);
-            const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
-            rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ");
-            rows.push(rowTitleTemp);
-            for (const keyQS in element.QS) {
-              if (Object.hasOwnProperty.call(element.QS, keyQS)) {
-                const elementQS = element.QS[keyQS];
-                let rowTemp = [
-                  parseInt(keyQS) + 1,
-                  elementQS.arrayBeforeChinhLy.length,
-                  ...elementQS.arrayBeforeChinhLy,
-                ];
-                rows.push(rowTemp);
-              }
-            }
+    let rows = [["Tên công việc", dataExportCSV.nameJob], ["Kết quả thu thập"]];
+    for (const key in dataExportCSV.eleJob) {
+      if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
+        const element = dataExportCSV.eleJob[key];
+        const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
+        rows.push(["Tên phần tử công việc", element.name]);
+        rows.push(["Loại công việc", element.type]);
+        const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
+        rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ");
+        rows.push(rowTitleTemp);
+        for (const keyQS in element.QS) {
+          if (Object.hasOwnProperty.call(element.QS, keyQS)) {
+            const elementQS = element.QS[keyQS];
+            let rowTemp = [
+              parseInt(keyQS) + 1,
+              elementQS.arrayBeforeChinhLy.length,
+              ...elementQS.arrayBeforeChinhLy,
+            ];
+            rows.push(rowTemp);
           }
-        }
-        rows.push(["Kết quả chỉnh lý"]);
-        for (const key in dataExportCSV.eleJob) {
-          if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
-            const element = dataExportCSV.eleJob[key];
-            const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
-            rows.push(["Tên phần tử công việc", element.name]);
-            rows.push(["Loại công việc", element.type]);
-            const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
-            rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ", "Kod", "Hao phí");
-            rows.push(rowTitleTemp);
-            for (const keyQS in element.QS) {
-              if (Object.hasOwnProperty.call(element.QS, keyQS)) {
-                const elementQS = element.QS[keyQS];
-                let rowTemp = [
-                  parseInt(keyQS) + 1,
-                  elementQS.soChuky,
-                  elementQS.Kod,
-                  elementQS.resultQuanSat,
-                  ...elementQS.arrayAfterChinhLy,
-                ];
-                rows.push(rowTemp);
-              }
-            }
-          }
-        }
-        rows.push(["Kết quả hao phí", dataExportCSV.HaoPhi]);
-
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        worksheet["A1"].s = {
-          fill: {
-            patternType: "solid",
-            fgColor: { rgb: "FF939393" },
-          },
-          font: {
-            name: "Times New Roman",
-            sz: 16,
-            color: { rgb: "#FF000000" },
-            bold: false,
-            italic: false,
-            underline: false,
-          },
-        };
-        //     //     /* generate worksheet and workbook */
-        //     //     const worksheet = XLSX.utils.json_to_sheet(rows);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
-        //     //     /* fix headers */
-        //     // XLSX.utils.sheet_add_aoa(worksheet, [["Name", "Birthday"]], {
-        //     //   origin: "A1",
-        //     // });
-        /* calculate column width */
-        // const max_width = rows.reduce((w, r) => Math.max(w, r.name.length), 10);
-        worksheet["!cols"] = [{ wch: 15 }];
-        if (!worksheet["!merges"]) worksheet["!merges"] = [];
-        worksheet["!merges"].push(XLSX.utils.decode_range("A2:E2"));
-        const base64 = XLSX.write(workbook, { type: "base64" });
-        const permissions =
-          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (!permissions.granted) {
-          return;
-        }
-        try {
-          await FileSystem.StorageAccessFramework.createFileAsync(
-            permissions.directoryUri,
-            "myExcel.xlsx",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          )
-            .then(async (uri) => {
-              await FileSystem.writeAsStringAsync(uri, base64, {
-                encoding: FileSystem.EncodingType.Base64,
-              }).then(() => {
-                alert("File Saved Successfully!");
-              });
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-        } catch (e) {
-          throw new Error(e);
         }
       }
-      return;
     }
+    rows.push(["Kết quả chỉnh lý"]);
+    for (const key in dataExportCSV.eleJob) {
+      if (Object.hasOwnProperty.call(dataExportCSV.eleJob, key)) {
+        const element = dataExportCSV.eleJob[key];
+        const lengthBefore = element.QS[0].arrayBeforeChinhLy.length;
+        rows.push(["Tên phần tử công việc", element.name]);
+        rows.push(["Loại công việc", element.type]);
+        const rowTitleTemp = [...Array(lengthBefore + 1).keys()].slice(1);
+        rowTitleTemp.unshift("Lần quan sát", "Số chu kỳ", "Kod", "Hao phí");
+        rows.push(rowTitleTemp);
+        for (const keyQS in element.QS) {
+          if (Object.hasOwnProperty.call(element.QS, keyQS)) {
+            const elementQS = element.QS[keyQS];
+            let rowTemp = [
+              parseInt(keyQS) + 1,
+              elementQS.soChuky,
+              elementQS.Kod,
+              elementQS.resultQuanSat,
+              ...elementQS.arrayAfterChinhLy,
+            ];
+            rows.push(rowTemp);
+          }
+        }
+      }
+    }
+    rows.push(["Kết quả hao phí", dataExportCSV.HaoPhi]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Dates", true);
+    worksheet["!cols"] = [{ wch: 15 }];
+    if (!worksheet["!merges"]) worksheet["!merges"] = [];
+    worksheet["!merges"].push(XLSX.utils.decode_range("A2:E2"));
+    const base64 = XLSX.write(workbook, {
+      type: "base64",
+      bookType: "xlsx",
+    });
+    const fileName = "myExcel.xlsx";
+    const filePath = FileSystem.cacheDirectory + fileName;
+    console.log("filePath: " + filePath);
+    FileSystem.writeAsStringAsync(filePath, base64, {
+      encoding: FileSystem.EncodingType.Base64,
+    }).then(() => {
+      Sharing.shareAsync(filePath);
+    });
+    return;
   };
 
   render() {
@@ -402,7 +331,6 @@ export default class StopWatch extends React.Component {
                 this.state.numObserveCurrent,
                 global.numObserve
               );
-              // this.ExportToCsv(global.dataExportCSV);
             }}
           >
             {this.checkTitle()}
@@ -544,7 +472,12 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     borderWidth: 1,
   },
-  result: { flex: 2 / 5 },
+  result: {
+    flex: 2 / 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#000",
+  },
   resultItem: {
     flexDirection: "row",
     justifyContent: "space-between",

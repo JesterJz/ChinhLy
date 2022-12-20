@@ -46,7 +46,7 @@ export default function InputTypeJob({ navigation }) {
         errorText={nameEleJobError}
       />
       <View style={styles.dropdownsRow}>
-        <SelectDropdown
+        {/* <SelectDropdown
           data={countries}
           onSelect={(selectedItem, index) => {
             onChangeTypeJob(index);
@@ -65,6 +65,20 @@ export default function InputTypeJob({ navigation }) {
           rowTextStyle={styles.dropdown1RowTxtStyle}
           error={typeJobError}
           errorText={typeJobError}
+        /> */}
+        <SelectDropdown
+          data={countries}
+          onSelect={(selectedItem, index) => {
+            onChangeTypeJob(index);
+          }}
+          buttonTextAfterSelection={(selectedItem, index) => {
+            return selectedItem;
+          }}
+          rowTextForSelection={(item, index) => {
+            return item;
+          }}
+          defaultButtonText={"Chọn loại công việc"}
+          buttonStyle={styles.dropdown1BtnStyle}
         />
       </View>
       {!!{ typeJobError } && (

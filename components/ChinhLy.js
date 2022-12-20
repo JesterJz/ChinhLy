@@ -102,12 +102,12 @@ function calculateHaveT(result, soChuKy, soPhanTu, Kod) {
 
     return [sum, result];
   } else if (1.3 < Kod <= 2) {
-    let [limMax, statusMax] = getLimMax(result, soChuKy);
+    const [limMax, statusMax] = getLimMax(result, soChuKy);
 
     if (statusMax == false) {
       return [0, limMax];
     } else {
-      let [limMin, statusMin] = getLimMin(limMax, soChuKy);
+      const [limMin, statusMin] = getLimMin(limMax, soChuKy);
       if (statusMin == false) {
         return [0, limMin];
       } else {
@@ -152,21 +152,25 @@ function calculateHaveT(result, soChuKy, soPhanTu, Kod) {
     }
   }
 }
-export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
+const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
   let resultQuanSat = 0;
   let sumAmountNumber = 0;
   let Kod = 0;
-
-  timeInput.forEach((element) => {
-    element = displayTime(element);
-    chuKy.push(element);
-  });
+  let chuKy = timeInput;
+  console.log("timeInput", timeInput);
 
   chuKy.sort();
 
   let aMax = Math.max(...chuKy);
   let aMin = Math.min(...chuKy);
   let soChuKy = chuKy.length;
+  console.log("chuKy", chuKy);
+  console.log("max", aMax);
+  console.log("min", aMin);
+  console.log("soChuKy", soChuKy);
+  console.log("soPhanTu", soPhanTu);
+  console.log("soLanQuanSat", soLanQuanSat);
+  console.log("Kod", Kod);
 
   aMin == 0 ? (Kod = 0) : (Kod = aMax / aMin);
 
@@ -185,3 +189,4 @@ export const ChinhLy = (timeInput, soPhanTu, soLanQuanSat) => {
     return [chuKy, Kod, arrayResult, resultQuanSat, sumAfterChinhLy];
   }
 };
+export { ChinhLy };
