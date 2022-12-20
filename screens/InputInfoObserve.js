@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, { useState } from "react";
 import Background from "../components/Background";
 import Logo from "../components/Logo";
@@ -29,20 +28,6 @@ export default function InputInfoObserve({ navigation }) {
         : estTime <= 10
         ? (global.soChuKyMin = 7)
         : (global.soChuKyMin = 5);
-      return (
-        <TextInput
-          label="Thời gian ước tính một chu kỳ"
-          returnKeyType="next"
-          onChangeText={onChangeEst}
-          value={estTime}
-          autoCapitalize="none"
-          error={estTimeError}
-          errorText={estTimeError}
-          keyboardType="numeric"
-        />
-      );
-    } else {
-      return "";
     }
   };
   return (
@@ -60,7 +45,20 @@ export default function InputInfoObserve({ navigation }) {
         errorText={numObserveError}
         keyboardType="numeric"
       />
-      <CheckChukyMin />
+      {global.typeJob == 1 ? (
+        <TextInput
+          label="Thời gian ước tính một chu kỳ"
+          returnKeyType="next"
+          onChangeText={onChangeEst}
+          value={estTime}
+          autoCapitalize="none"
+          error={estTimeError}
+          errorText={estTimeError}
+          keyboardType="numeric"
+        />
+      ) : (
+        ""
+      )}
       <Button
         mode="contained"
         onPress={() => {
@@ -71,6 +69,7 @@ export default function InputInfoObserve({ navigation }) {
             ? onChangeEstTimeError("Hãy nhập thời gian ước tính một chu kỳ")
             : onChangeEstTimeError("");
           if (numObserve !== 0) {
+            CheckChukyMin();
             navigation.navigate("Tabs");
           }
         }}
