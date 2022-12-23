@@ -1,14 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Tabs from "./components/Tabs";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import InputName from "./screens/InputName";
-import StartScreen from "./screens/StartScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import InputInfoObserve from "./screens/InputInfoObserve";
 import InputTypeJob from "./screens/InputTypeJob";

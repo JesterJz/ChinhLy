@@ -24,7 +24,6 @@ import {
   Portal,
   Provider,
 } from "react-native-paper";
-import { Asset } from "expo-asset";
 
 export default class StopWatch extends React.Component {
   constructor(props) {
